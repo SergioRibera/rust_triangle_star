@@ -26,7 +26,7 @@ jobs:
           components: rustfmt, clippy
           target: ${{ matrix.platform.target }}
 
-  config-cache:
+  build:
     name: Configure Cache
     needs: [config-rust]
     strategy:
@@ -38,6 +38,7 @@ jobs:
           - { target: x86_64-apple-darwin, os: macos-latest, ext: "" }
     runs-on: ${{ matrix.platform.os }}
     steps:
+      - uses: actions/checkout@v2
       - name: Cache cargo registry
         uses: actions/cache@v2.1.4
         with:
@@ -68,20 +69,6 @@ jobs:
           restore-keys: |
             ${{ matrix.platform }}-stable-cargo-core-${{ hashFiles('Cargo.toml') }}
             ${{ matrix.platform }}-stable-cargo-core-
-
-  deploy:
-    name: Build and Deploy
-    needs: [config-rust, config-cache]
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - { target: x86_64-pc-windows-msvc, os: windows-latest, ext: ".exe" }
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, ext: "" }
-          - { target: x86_64-apple-darwin, os: macos-latest, ext: "" }
-
-    runs-on: ${{ matrix.platform.os }}
-    steps:
       - name: build release
         run: cargo build --release --target ${{ matrix.platform.target }}
       - name: Upload Release
