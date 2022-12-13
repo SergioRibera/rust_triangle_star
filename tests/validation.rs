@@ -1,6 +1,4 @@
-use std::str::FromStr;
-
-use rust_triangle_star::prelude::{accept, is_language_valid, is_n, is_number, MyBool};
+use rust_triangle_star::prelude::{accept, is_language_valid, is_n, is_number};
 
 #[test]
 fn validate_language() {
