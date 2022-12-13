@@ -1,4 +1,3 @@
-
 // **********************************
 // *                                *
 // *      The Tree Algorithm        *
@@ -29,5 +28,10 @@ fn generate_tree(n: i32) -> Result<(), String> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<(), String> {
+    println!("Show tree with 5 length");
+    generate_tree(5)?;
+
+    println!("Show tree with 20 length");
+    generate_tree(20)
 }
