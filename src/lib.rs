@@ -16,7 +16,11 @@ pub mod prelude {
 // *                                *
 // **********************************
 // private function
-pub fn generate_tree(n: i32, padding: i32, sentence: &[&'static str]) -> Result<(), &'static str> {
+pub fn generate_tree(
+    n: i32,
+    padding: i32,
+    sentence: &[&'static str],
+) -> Result<String, &'static str> {
     // if n is 0, throw error
     if n <= 0 {
         // & is a reference
@@ -28,6 +32,7 @@ pub fn generate_tree(n: i32, padding: i32, sentence: &[&'static str]) -> Result<
         // It for fix the clippy borrow-deref-ref warning
         return Err(&**sentence.get(3).unwrap());
     }
+    let mut res: Vec<String> = vec![];
     // Run from 0 to n, for made n lines
     for i in 0..n {
         // calculate space from left
@@ -41,8 +46,9 @@ pub fn generate_tree(n: i32, padding: i32, sentence: &[&'static str]) -> Result<
         // first create a vector with n_stars length filled by "*" star character
         let stars = vec!["*"; n_stars as usize].join("");
 
-        // show line on console
-        println!("{spaces}{stars}")
+        // add line to result vec
+        res.push(format!("{spaces}{stars}"));
     }
-    Ok(())
+    // return Ok with all elements on array joined by new line (\n)
+    Ok(res.join("\n"))
 }
