@@ -7,7 +7,24 @@ on:
       - "main"
 
 jobs:
-  ci:
+  config:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: install rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+          target: ${{ matrix.platform.target }}
+
+  cache:
+    needs: [config]
     strategy:
       fail-fast: false
       matrix:
@@ -16,13 +33,6 @@ jobs:
     runs-on: ${{ matrix.platform.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: install rust nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-          target: ${{ matrix.platform.target }}
       - name: Cache cargo registry
         uses: actions/cache@v2.1.4
         with:
