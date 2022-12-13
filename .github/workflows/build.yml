@@ -23,6 +23,7 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: rustfmt, clippy
           target: ${{ matrix.platform.target }}
 
   config-cache:
