@@ -54,7 +54,7 @@ pub fn is_number(s: &str) -> bool {
 
 // Validation for N (tree length)
 // verify if the number input is valid (is number && is > 0)
-fn is_n(s: &str) -> bool {
+pub fn is_n(s: &str) -> bool {
     // check if is number and if the parse result is more than 0, is valid
     is_number(s) && s.trim().parse::<i32>().unwrap_or(0) > 0
 }
