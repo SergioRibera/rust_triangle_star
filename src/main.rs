@@ -1,6 +1,11 @@
-use user_input::{ask, is_n};
+use lang::{is_language_valid, LANGUAGES};
+use user_input::{accept, ask, is_n, is_number, MyBool};
+
+// import library for print with colors
+use colored::Colorize;
 
 // define the modules to rust compiler
+mod lang;
 mod user_input;
 
 // **********************************
@@ -9,10 +14,17 @@ mod user_input;
 // *                                *
 // **********************************
 // private function
-fn generate_tree(n: i32, padding: i32) -> Result<(), &'static str> {
+fn generate_tree(n: i32, padding: i32, sentence: &[&'static str]) -> Result<(), &'static str> {
     // if n is 0, throw error
     if n <= 0 {
-        return Err("The size of the tree must be greater than 0");
+        // & is a reference
+        // * use for dereference
+        // the first * is for dereference &[] array
+        // the second * is for derefence &'static str
+        // and the & on first is for made a new reference to &'static str
+        //
+        // It for fix the clippy borrow-deref-ref warning
+        return Err(&**sentence.get(3).unwrap());
     }
     // Run from 0 to n, for made n lines
     for i in 0..n {
@@ -34,10 +46,21 @@ fn generate_tree(n: i32, padding: i32) -> Result<(), &'static str> {
 }
 
 fn main() -> Result<(), &'static str> {
-    //
-    // Question
-    //
-    let padding = ask::<i32>("What margin will the tree have (20 by default)", false, is_n).map_or(20, |x| x);
-    let n = ask::<i32>("Type the size of the tree", true, is_n).unwrap();
-    generate_tree(n, padding)
+    let mut cont = true;
+    let lang = ask::<String>("Choose your language [en|es]", true, is_language_valid)
+        .map_or("en".to_string(), |n| n);
+    let sentences = LANGUAGES.iter().find(|l| l.0 == lang).unwrap();
+    let padding = ask::<i32>(sentences.1.first().unwrap(), true, is_number).map_or(20, |n| n);
+    // continue infinite if the user want
+    while cont {
+        // ask to user how much big want a tree
+        let n = ask::<i32>(sentences.1.get(1).unwrap(), false, is_n).map_or(5, |n| n);
+        // call to Algorithm with a default padding
+        generate_tree(n, padding, sentences.1)?;
+        let ok = ask::<MyBool>(sentences.1.get(2).unwrap(), true, accept)
+            .map_err(|e| println!("\n\t{}", e.magenta()))
+            .unwrap_or(MyBool(false));
+        cont = ok.0;
+    }
+    Ok(())
 }
