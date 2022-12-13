@@ -9,7 +9,7 @@ mod user_input;
 // *                                *
 // **********************************
 // private function
-fn generate_tree(n: i32) -> Result<(), &'static str> {
+fn generate_tree(n: i32, padding: i32) -> Result<(), &'static str> {
     // if n is 0, throw error
     if n <= 0 {
         return Err("The size of the tree must be greater than 0");
@@ -17,7 +17,7 @@ fn generate_tree(n: i32) -> Result<(), &'static str> {
     // Run from 0 to n, for made n lines
     for i in 0..n {
         // calculate space from left
-        let n_spaces = n - i - 1;
+        let n_spaces = (n - i - 1) + padding;
         // calculate stars to draw
         let n_stars = (i * 2) + 1;
         // generate spaces string
@@ -37,6 +37,7 @@ fn main() -> Result<(), &'static str> {
     //
     // Question
     //
+    let padding = ask::<i32>("What margin will the tree have (20 by default)", false, is_n).map_or(20, |x| x);
     let n = ask::<i32>("Type the size of the tree", true, is_n).unwrap();
-    generate_tree(n)
+    generate_tree(n, padding)
 }
