@@ -21,6 +21,7 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: rustfmt, clippy
           target: ${{ matrix.platform.target }}
 
   cache:
@@ -69,7 +70,11 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
+      - name: test
+        run: ls -a && pwd
       - name: check format
         run: cargo fmt --all -- --check
-      - name: check format
+      - name: check Clippy
         run: cargo clippy -- -D warnings
+      - name: check Tests
+        run: cargo test
