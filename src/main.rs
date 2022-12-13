@@ -1,4 +1,4 @@
-use std::io::{self, Write, stdin, Read};
+use user_input::{ask, is_n};
 
 // define the modules to rust compiler
 mod user_input;
@@ -37,39 +37,6 @@ fn main() -> Result<(), &'static str> {
     //
     // Question
     //
-    // show into console the question for input the tree size
-    print!("Type the size of the tree: ");
-    // flush the last print output
-    io::stdout().flush().unwrap();
-
-    //
-    // User Answer
-    //
-    // Create empty 1024 buffer
-    let mut buf = [0u8; 1024];
-
-    // read from standar input and save input on buf, its return a length of user input
-    if let Ok(c) = stdin().read(&mut buf) {
-        // if user input length is more than 0, continue
-        if c > 1 {
-            // convert array buf to String and unwrap if is valid
-            let answer = String::from_utf8(buf[..c - 1].to_vec()).unwrap();
-            // Try parse String to i32, its return a Result, if Result is Ok(n) we call to
-            // algorithm function
-            if let Ok(n) = answer.parse::<i32>() {
-                // call the function and implicitly return its result
-                generate_tree(n)
-            } else {
-                // If cannot parse, we trow an error
-                Err("Not valid number detected")
-            }
-        } else {
-            // If user not write any or only press enter,
-            // we trow an error
-            Err("You need write something")
-        }
-    } else {
-        // If user not write any, we trow an error
-        Err("An error ocurred")
-    }
+    let n = ask::<i32>("Type the size of the tree", true, is_n).unwrap();
+    generate_tree(n)
 }
