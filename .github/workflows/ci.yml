@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  config:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: install rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          target: ${{ matrix.platform.target }}
+
+  cache:
+    needs: [config]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: Cache cargo registry
+        uses: actions/cache@v2.1.4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ matrix.platform }}-nightly-cargo-registry-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          restore-keys: |
+            ${{ matrix.platform }}-nightly-cargo-registry-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-nightly-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v2.1.4
+        with:
+          path: ~/.cargo/git
+          # Add date to the cache to keep it up to date
+          key: ${{ matrix.platform }}-nightly-cargo-index-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          # Restore from outdated cache for speed
+          restore-keys: |
+            ${{ matrix.platform }}-nightly-cargo-index-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-nightly-cargo-index-
+      - name: Cache cargo target
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ matrix.platform }}-nightly-cargo-core-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          restore-keys: |
+            ${{ matrix.platform }}-nightly-cargo-core-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-nightly-cargo-core-
+
+  checks:
+    needs: [config, cache]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: check format
+        run: cargo fmt --all -- --check
+      - name: check format
+        run: cargo clippy -- -D warnings

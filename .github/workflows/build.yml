@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  config-rust:
+    name: Configure Rust
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: install rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          target: ${{ matrix.platform.target }}
+
+  config-cache:
+    name: Configure Cache
+    needs: [config-rust]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, ext: ".exe" }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, ext: "" }
+          - { target: x86_64-apple-darwin, os: macos-latest, ext: "" }
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: Cache cargo registry
+        uses: actions/cache@v2.1.4
+        with:
+          path: ~/.cargo/registry
+          # Add date to the cache to keep it up to date
+          key: ${{ matrix.platform }}-stable-cargo-registry-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          # Restore from outdated cache for speed
+          restore-keys: |
+            ${{ matrix.platform }}-stable-cargo-registry-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-stable-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v2.1.4
+        with:
+          path: ~/.cargo/git
+          # Add date to the cache to keep it up to date
+          key: ${{ matrix.platform }}-stable-cargo-index-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          # Restore from outdated cache for speed
+          restore-keys: |
+            ${{ matrix.platform }}-stable-cargo-index-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-stable-cargo-index-
+      - name: Cache cargo target
+        uses: actions/cache@v2
+        with:
+          path: target
+          # Add date to the cache to keep it up to date
+          key: ${{ matrix.platform }}-stable-cargo-core-${{ hashFiles('Cargo.toml') }}-${{ env.CURRENT_DATE }}
+          # Restore from outdated cache for speed
+          restore-keys: |
+            ${{ matrix.platform }}-stable-cargo-core-${{ hashFiles('Cargo.toml') }}
+            ${{ matrix.platform }}-stable-cargo-core-
+
+  deploy:
+    name: Build and Deploy
+    needs: [config-rust, config-cache]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, ext: ".exe" }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, ext: "" }
+          - { target: x86_64-apple-darwin, os: macos-latest, ext: "" }
+
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: build release
+        run: cargo build --release --target ${{ matrix.platform.target }}
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: target/${{ matrix.platform.target }}/release/rust_triangle_star${{ matrix.platform.ext }}
