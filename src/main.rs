@@ -11,14 +11,15 @@ fn main() -> Result<(), &'static str> {
     let lang = ask::<String>("Choose your language [en|es]", true, is_language_valid)
         .map_or("en".to_string(), |n| n);
     let sentences = LANGUAGES.iter().find(|l| l.0 == lang).unwrap();
-    let padding = ask::<i32>(sentences.1.first().unwrap(), true, is_number).map_or(20, |n| n);
+    let padding = ask::<i32>(sentences.1.first().unwrap(), false, is_number).map_or(20, |n| n);
     // continue infinite if the user want
     while cont {
         // ask to user how much big want a tree
-        let n = ask::<i32>(sentences.1.get(1).unwrap(), false, is_n).map_or(5, |n| n);
+        let n = ask::<i32>(sentences.1.get(1).unwrap(), true, is_n).map_or(5, |n| n);
         // call to Algorithm with a default padding
-        generate_tree(n, padding, sentences.1)?;
-        let ok = ask::<MyBool>(sentences.1.get(2).unwrap(), true, accept)
+        let tree = generate_tree(n, padding, sentences.1)?;
+        println!("{tree}");
+        let ok = ask::<MyBool>(sentences.1.get(2).unwrap(), false, accept)
             .map_err(|e| println!("\n\t{}", e.magenta()))
             .unwrap_or(MyBool(false));
         cont = ok.0;
