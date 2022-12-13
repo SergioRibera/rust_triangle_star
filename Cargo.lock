@@ -47,7 +47,7 @@ checksum = "db6d7e329c562c5dfab7a46a2afabc8b987ab9a4834c9d1ca04dc54c1546cef8"
 
 [[package]]
 name = "rust_triangle_star"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "colored",
 ]
