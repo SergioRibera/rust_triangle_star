@@ -26,3 +26,10 @@ pub const LANGUAGES: &[(&str, &[&str])] = &[
         ],
     ),
 ];
+
+// verify if language input exists on list
+pub fn is_language_valid(s: &str) -> bool {
+    LANGUAGES
+        .iter()
+        .any(|l| l.0 == s)
+}
