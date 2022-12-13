@@ -1,5 +1,8 @@
 use std::io::{self, Write, stdin, Read};
 
+// define the modules to rust compiler
+mod user_input;
+
 // **********************************
 // *                                *
 // *      The Tree Algorithm        *
