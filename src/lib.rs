@@ -71,7 +71,6 @@ fn functional_solution(
         return Err(&**sentence.get(3).unwrap());
     }
     Ok((0..n)
-        .into_iter()
         .map(|i| {
             format!(
                 "{:^p$}{:*<s$}",
