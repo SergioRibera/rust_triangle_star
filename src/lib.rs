@@ -52,3 +52,35 @@ pub fn generate_tree(
     // return Ok with all elements on array joined by new line (\n)
     Ok(res.join("\n"))
 }
+
+#[allow(unused)]
+fn functional_solution(
+    n: i32,
+    padding: i32,
+    sentence: &[&'static str],
+) -> Result<String, &'static str> {
+    // if n is 0, throw error
+    if n <= 0 {
+        // & is a reference
+        // * use for dereference
+        // the first * is for dereference &[] array
+        // the second * is for derefence &'static str
+        // and the & on first is for made a new reference to &'static str
+        //
+        // It for fix the clippy borrow-deref-ref warning
+        return Err(&**sentence.get(3).unwrap());
+    }
+    (0..n)
+        .into_iter()
+        .map(|i| {
+            format!(
+                "{:^p$}{:*<s$}",
+                " ",
+                "",
+                p = ((n - i) + padding) as usize,
+                s = ((i * 2) + 1) as usize,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
