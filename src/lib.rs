@@ -70,7 +70,7 @@ fn functional_solution(
         // It for fix the clippy borrow-deref-ref warning
         return Err(&**sentence.get(3).unwrap());
     }
-    (0..n)
+    Ok((0..n)
         .into_iter()
         .map(|i| {
             format!(
@@ -82,5 +82,5 @@ fn functional_solution(
             )
         })
         .collect::<Vec<_>>()
-        .join("\n")
+        .join("\n"))
 }
